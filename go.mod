@@ -1,9 +1,10 @@
-module main
+module github.com/ikascrew/volumes
 
 go 1.12
 
 require (
 	github.com/mattn/go-colorable v0.1.4
-	golang.org/x/crypto v0.0.0-20191106202628-ed6320f186d4
-	golang.org/x/sys v0.0.0-20191105231009-c1f44814a5cd // indirect
+	github.com/mattn/go-runewidth v0.0.6 // indirect
+	github.com/nsf/termbox-go v0.0.0-20190817171036-93860e161317 // indirect
+	golang.org/x/crypto v0.0.0-20191108234033-bd318be0434a
 )
