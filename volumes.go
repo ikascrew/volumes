@@ -51,6 +51,7 @@ func (v *Volumes) Set(val float64) {
 
 func (v *Volumes) Start() {
 
+	fmt.Printf("\n Start \n")
 	out := NewColorableStdout()
 
 	//->[VOLUME][ -30.00][---------------=========|-------------------------]
@@ -71,11 +72,15 @@ func (v *Volumes) Start() {
 			f := "%" + fmt.Sprintf("%d", clen) + "s" + "[%" + fmt.Sprintf("%d", nameNum) + "s][%7.2f][%s]%s"
 			remain := width - (2 + nameNum + 2 + 7 + 2 + 2)
 
+			lines := ""
 			for idx, elm := range v.vols {
 				line := elm.format(f, remain, idx == v.cursor)
-				fmt.Fprintf(out, "\033[2K\r%s", line)
+				lines += line
 			}
+			fmt.Fprintf(out, "\033[2K\r%s\033[3A", lines)
+
 		case <-v.end:
+
 			return
 		}
 	}
@@ -84,9 +89,11 @@ func (v *Volumes) Start() {
 }
 
 func (v *Volumes) SetCursor(idx int) {
+
 	if idx < 0 || idx > len(v.vols)-1 {
 		return
 	}
+
 	v.cursor = idx
 	v.update <- nil
 }
@@ -106,6 +113,7 @@ func (v *Volumes) Wait() error {
 func (v *Volumes) Finish(err error) {
 	v.finish <- err
 	v.end <- err
+	fmt.Printf("\n Finished \n")
 }
 
 func (v *Volumes) getNameMax() int {
