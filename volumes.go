@@ -17,7 +17,9 @@ type Volumes struct {
 
 	cursor int
 
+	//更新
 	update chan error
+	//終了
 	finish chan error
 	end    chan error
 }
@@ -28,6 +30,7 @@ type Volume struct {
 	value float64
 }
 
+//新規作成
 func New() *Volumes {
 	v := Volumes{}
 	v.vols = make([]*Volume, 0)
@@ -51,9 +54,7 @@ func (v *Volumes) Set(val float64) {
 
 func (v *Volumes) Start() {
 
-	fmt.Printf("\n Start \n")
 	out := NewColorableStdout()
-
 	//->[VOLUME][ -30.00][---------------=========|-------------------------]
 
 	for {
@@ -64,6 +65,7 @@ func (v *Volumes) Start() {
 
 			width, err := getTerminalWidth()
 			if err != nil {
+				//エラーの為終了
 				v.end <- err
 				return
 			}
@@ -72,15 +74,15 @@ func (v *Volumes) Start() {
 			f := "%" + fmt.Sprintf("%d", clen) + "s" + "[%" + fmt.Sprintf("%d", nameNum) + "s][%7.2f][%s]%s"
 			remain := width - (2 + nameNum + 2 + 7 + 2 + 2)
 
-			lines := ""
 			for idx, elm := range v.vols {
 				line := elm.format(f, remain, idx == v.cursor)
-				lines += line
+				fmt.Fprintf(out, "%s\n", line)
 			}
-			fmt.Fprintf(out, "\033[2K\r%s\033[3A", lines)
 
+			fmt.Fprintf(out, "\033[%dA", len(v.vols))
 		case <-v.end:
 
+			fmt.Fprintln(out)
 			return
 		}
 	}
@@ -113,7 +115,6 @@ func (v *Volumes) Wait() error {
 func (v *Volumes) Finish(err error) {
 	v.finish <- err
 	v.end <- err
-	fmt.Printf("\n Finished \n")
 }
 
 func (v *Volumes) getNameMax() int {
