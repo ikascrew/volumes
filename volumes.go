@@ -45,8 +45,33 @@ func (v *Volumes) Add(name string, vol int) {
 
 func (v *Volumes) Set(val float64) {
 	v.vols[v.cursor].Set(val)
-	v.update <- nil
+	v.notify()
 	return
+}
+
+// notify は端末モニタ(Start)が動いていれば更新を通知する。
+// Startを使わない(GUI側で表示する)場合にブロックしないよう非ブロッキング送信にする。
+func (v *Volumes) notify() {
+	select {
+	case v.update <- nil:
+	default:
+	}
+}
+
+// Info は表示用のスナップショット
+type Info struct {
+	Name  string
+	Value float64
+	Max   int
+}
+
+// Info は全ボリュームのスナップショットを返す
+func (v *Volumes) Info() []Info {
+	rtn := make([]Info, len(v.vols))
+	for i, elm := range v.vols {
+		rtn[i] = Info{Name: elm.name, Value: elm.value, Max: elm.max}
+	}
+	return rtn
 }
 
 func (v *Volumes) Start() {
@@ -95,7 +120,7 @@ func (v *Volumes) SetCursor(idx int) {
 	}
 
 	v.cursor = idx
-	v.update <- nil
+	v.notify()
 }
 
 func (v *Volumes) GetCursor() int {
