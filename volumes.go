@@ -127,6 +127,18 @@ func (v *Volumes) GetCursor() int {
 	return v.cursor
 }
 
+// SetValue はカーソル位置に関係なく idx のボリュームへ値を設定する。
+// クライアント起動時にサーバ側の現在値と同期するために使う
+func (v *Volumes) SetValue(idx int, val float64) {
+
+	if idx < 0 || idx > len(v.vols)-1 {
+		return
+	}
+
+	v.vols[idx].Set(val)
+	v.notify()
+}
+
 func (v *Volumes) Get() float64 {
 	return v.vols[v.cursor].Get()
 }
