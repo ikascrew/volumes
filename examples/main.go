@@ -67,6 +67,4 @@ func controller(v *vol.Volumes) error {
 		default:
 		}
 	}
-
-	return nil
 }

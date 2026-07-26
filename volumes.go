@@ -109,8 +109,6 @@ func (v *Volumes) Start() {
 			return
 		}
 	}
-
-	return
 }
 
 func (v *Volumes) SetCursor(idx int) {
@@ -191,8 +189,16 @@ func (v *Volume) format(f string, remain int, current bool) string {
 		barNum = barNum - 1
 		margin = " "
 	}
+	// 端末幅が極端に狭い場合(remain <= 1)は barNum が負になり
+	// strings.Repeat が panic するため、バー無しとして扱う
+	if barNum < 0 {
+		barNum = 0
+	}
 
-	absV := int(math.Abs(v.value) / float64(v.max) * float64(barNum))
+	absV := 0
+	if v.max != 0 {
+		absV = int(math.Abs(v.value) / float64(v.max) * float64(barNum))
+	}
 	if absV > barNum {
 		absV = barNum
 	}
